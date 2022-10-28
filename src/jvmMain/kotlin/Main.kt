@@ -436,7 +436,7 @@ val designedIntervals = listOf(5, 10, 20, 30)
 var timer: Timer? = null
 fun updateInterval(interval: Int, trayState: TrayState) {
     timer?.cancel()
-    val delay = interval * 6000L
+    val delay = interval * 60000L
     timer = timer(initialDelay = delay, period = delay) {
         updateDaemon.launch {
             Handler.account(Handler.preferences.recentAccount)
