@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -16,7 +17,9 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import kotlinx.coroutines.*
+import org.apache.commons.lang3.SystemUtils
 import java.awt.Dimension
+import java.awt.event.KeyEvent
 import java.util.Timer
 import kotlin.concurrent.timer
 
@@ -367,13 +370,14 @@ fun main() = application {
 
             Separator()
 
-            Item(
-                text = "显示主界面",
-                onClick = {
-                    visible = true
-                    visibilityListener?.invoke(true)
-                }
-            )
+            if (!visible)
+                Item(
+                    text = "显示主界面",
+                    onClick = {
+                        visible = true
+                        visibilityListener?.invoke(true)
+                    }
+                )
 
             Item(
                 text = "退出",
@@ -398,6 +402,20 @@ fun main() = application {
         title = "NUISTin",
         state = WindowState(size = DpSize(500.dp, 400.dp)),
         visible = visible,
+        onKeyEvent = { ev ->
+            if (ev.key.nativeKeyCode == KeyEvent.VK_W) {
+                if (SystemUtils.IS_OS_MAC_OSX && ev.isMetaPressed) {
+                    visible = false
+                    visibilityListener?.invoke(false)
+                    return@Window true
+                } else if (ev.isCtrlPressed) {
+                    visible = false
+                    visibilityListener?.invoke(false)
+                    return@Window true
+                }
+            }
+            false
+        }
     ) {
         window.minimumSize = Dimension(400, 400)
         App(callback)
@@ -407,7 +425,7 @@ fun main() = application {
         fun newJob() =
             GlobalScope.launch { // detect changes in dark mode settings
                 var enabled = currentOS.isDarkModeEnabled()
-                while (isActive) {
+                while (isActive && visible) {
                     if (currentOS.isDarkModeEnabled() != enabled) {
                         enabled = !enabled
                         colorModeListener?.invoke(enabled)
@@ -415,6 +433,7 @@ fun main() = application {
                     delay(500L)
                 }
             }
+
         var currentJob = newJob()
         visibilityListener = { visible ->
             if (currentJob.isActive) currentJob.cancel()
