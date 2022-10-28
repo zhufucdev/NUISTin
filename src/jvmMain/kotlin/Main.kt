@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Send
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -52,6 +53,31 @@ fun App() {
         return valid
     }
 
+    val loginHandler: () -> Unit = {
+        if (validateInput()) {
+            working = true
+            val account = currentAccount()
+            scope.launch {
+                val result = Handler.login(account)
+                working = false
+                scaffoldState.snackbarHostState.showSnackbar(
+                    when (result) {
+                        LoginResult.IP_FAILURE -> "无法获取IP地址"
+                        LoginResult.LOGIN_FAILURE -> "登录服务器拒绝了我们的请求"
+                        LoginResult.TIMEOUT -> "请求超时"
+                        LoginResult.SUCCESS -> "成功登录"
+                        LoginResult.EXCEPTION -> "内部错误"
+                    }
+                )
+
+                if (result == LoginResult.SUCCESS) {
+                    Handler.store(account)
+                    Handler.preferences.recentAccount = account.id
+                }
+            }
+        }
+    }
+
     MaterialTheme {
         Scaffold(
             scaffoldState = scaffoldState,
@@ -60,32 +86,10 @@ fun App() {
                     backgroundColor =
                     if (working) MaterialTheme.colors.secondaryVariant
                     else MaterialTheme.colors.secondary,
-                    onClick = {
-                        if (validateInput()) {
-                            working = true
-                            val account = currentAccount()
-                            scope.launch {
-                                val result = Handler.login(account)
-                                working = false
-                                scaffoldState.snackbarHostState.showSnackbar(
-                                    when (result) {
-                                        LoginResult.IP_FAILURE -> "无法获取IP地址"
-                                        LoginResult.LOGIN_FAILURE -> "登录服务器拒绝了我们的请求"
-                                        LoginResult.TIMEOUT -> "请求超时"
-                                        LoginResult.SUCCESS -> "成功登录"
-                                        LoginResult.EXCEPTION -> "内部错误"
-                                    }
-                                )
-
-                                if (result == LoginResult.SUCCESS) {
-                                    Handler.store(account)
-                                }
-                            }
-                        }
-                    }
+                    onClick = loginHandler
                 ) {
                     if (working) {
-                        CircularProgressIndicator()
+                        CircularProgressIndicator(color = Color.White)
                     } else {
                         Icon(Icons.Default.Send, "login")
                     }
