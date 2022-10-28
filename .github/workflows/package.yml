@@ -32,7 +32,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'corretto'
-          architecture: aarch64
+          architecture: x64
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
       - name: Build with Gradle
@@ -42,7 +42,7 @@ jobs:
       - name: Upload macOS DMG
         uses: actions/upload-artifact@v3
         with:
-          name: darwin-aarch64
+          name: darwin-x64
           path: build/compose/binaries/main/dmg
   for-linux:
     runs-on: ubuntu-latest
