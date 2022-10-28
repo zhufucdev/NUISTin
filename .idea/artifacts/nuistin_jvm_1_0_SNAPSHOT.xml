@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="nuistin-jvm-1.0-SNAPSHOT">
+    <output-path>$PROJECT_DIR$/build/libs</output-path>
+    <root id="archive" name="nuistin-jvm-1.0-SNAPSHOT.jar">
+      <element id="module-output" name="nuistin.jvmMain" />
+    </root>
+  </artifact>
+</component>
