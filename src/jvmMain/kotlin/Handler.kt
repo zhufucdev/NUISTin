@@ -21,16 +21,7 @@ object Handler {
     /* Data store */
     private val accountsDir by lazy { File(dataDir, "accounts") }
     private val preferencesFile by lazy { File(dataDir, "preferences.json") }
-
-    private val dataDir by lazy {
-        when {
-            SystemUtils.IS_OS_WINDOWS -> Paths.get(System.getenv("APPDATA"), "NUISTin").toFile()
-            SystemUtils.IS_OS_MAC_OSX ->
-                Paths.get(SystemUtils.USER_HOME, "Library", "Application Support", "NUISTin").toFile()
-            SystemUtils.IS_OS_LINUX -> File(SystemUtils.getUserHome(), ".nuistin")
-            else -> File(SystemUtils.getUserHome(), "nuistin")
-        }
-    }
+    private val dataDir get() = currentOS.dataDir
 
     /* Runtime */
     private val ktor = HttpClient(CIO) {

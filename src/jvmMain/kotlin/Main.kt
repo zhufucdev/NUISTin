@@ -14,11 +14,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
-import com.github.tkuenneth.nativeparameterstoreaccess.Dconf
-import com.github.tkuenneth.nativeparameterstoreaccess.MacOSDefaults
-import com.github.tkuenneth.nativeparameterstoreaccess.WindowsRegistry
 import kotlinx.coroutines.*
-import org.apache.commons.lang3.SystemUtils
 import java.awt.Dimension
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -341,9 +337,9 @@ fun OutlinedTextFieldWithError(
 fun main() = application {
     var colorModeListener: ((Boolean) -> Unit)? = null
     GlobalScope.launch { // detect changes in dark mode settings
-        var enabled = isDarkModeEnabled()
+        var enabled = currentOS.isDarkModeEnabled()
         while (isActive) {
-            if (isDarkModeEnabled() != enabled) {
+            if (currentOS.isDarkModeEnabled() != enabled) {
                 enabled = !enabled
                 colorModeListener?.invoke(enabled)
             }
@@ -355,7 +351,7 @@ fun main() = application {
             colorModeListener = l
         }
 
-        override fun getDarkModeEnabled() = isDarkModeEnabled()
+        override fun getDarkModeEnabled() = currentOS.isDarkModeEnabled()
     }
 
     Window(
@@ -379,23 +375,6 @@ val Carrier.uiName
         Carrier.TELECOM -> "电信"
         Carrier.UNICOM -> "联通"
     }
-
-fun isDarkModeEnabled(): Boolean = when {
-    SystemUtils.IS_OS_MAC_OSX -> MacOSDefaults.getDefaultsEntry("AppleInterfaceStyle") == "Dark"
-
-    SystemUtils.IS_OS_WINDOWS ->
-        WindowsRegistry.getWindowsRegistryEntry(
-            "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
-            "AppsUseLightTheme"
-        ) == 0x0
-
-    Dconf.HAS_DCONF ->
-        Dconf.getDconfEntry("/org/gnome/desktop/interface/gtk-theme").lowercase()
-            .contains("dark")
-
-    else -> false
-}
-
 
 interface ApplicationCallback {
     fun setInterfaceStyleChangeListener(l: (dark: Boolean) -> Unit)
