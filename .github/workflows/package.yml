@@ -64,4 +64,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: debian-x64
-          path: build/compose/binaries/main/dev
+          path: build/compose/binaries/main/deb
