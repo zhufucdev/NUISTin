@@ -68,14 +68,19 @@ object Handler {
         if (!accountsDir.exists()) {
             accountsDir.mkdirs()
         }
-        accounts.add(account)
+        val acc = if (!account.remember) {
+            account.copy(password = "")
+        } else {
+            account
+        }
+        accounts.add(acc)
 
-        val file = File(accountsDir, "${account.id}.json")
+        val file = File(accountsDir, "${acc.id}.json")
         if (!file.exists()) {
             file.createNewFile()
         }
         file.outputStream().use {
-            Json.encodeToStream(account, it)
+            Json.encodeToStream(acc, it)
         }
     }
 

@@ -33,6 +33,7 @@ fun App() {
     var carrier by remember { mutableStateOf(Carrier.MOBILE) }
 
     var carrierExpended by remember { mutableStateOf(false) }
+    var idExpended by remember { mutableStateOf(true) }
     var idInputError by remember { mutableStateOf("") }
     var pwdInputError by remember { mutableStateOf("") }
     var working by remember { mutableStateOf(false) }
@@ -52,6 +53,14 @@ fun App() {
             valid = false
         }
         return valid
+    }
+
+    fun useState(account: Account) {
+        id = account.id
+        password = account.password
+        carrier = account.carrier
+        autologin = account.autostart
+        remember = account.remember
     }
 
     val loginHandler: () -> Unit = {
@@ -83,11 +92,7 @@ fun App() {
         Handler.account(Handler.preferences.recentAccount)
             ?.let {
                 if (it.autostart) {
-                    id = it.id
-                    password = it.password
-                    carrier = it.carrier
-                    autologin = true
-                    remember = true
+                    useState(it)
                     loginHandler()
                 }
             }
@@ -118,19 +123,39 @@ fun App() {
                         .fillMaxWidth()
                         .fillMaxHeight()
                 ) {
-                    OutlinedTextFieldWithError(
-                        value = id,
-                        enabled = !working,
-                        onValueChange = {
-                            id = it
-                            idInputError = ""
-                        },
-                        label = {
-                            Text("ID")
-                        },
-                        errorMessage = idInputError,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    Box {
+                        OutlinedTextFieldWithError(
+                            value = id,
+                            enabled = !working,
+                            onValueChange = {
+                                idExpended = true
+                                id = it
+                                idInputError = ""
+                            },
+                            label = {
+                                Text("ID")
+                            },
+                            errorMessage = idInputError,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        DropdownMenu(
+                            expanded = idExpended,
+                            onDismissRequest = { idExpended = false },
+                            focusable = false
+                        ) {
+                            Handler.list().forEach {
+                                if (id.isEmpty() || it.id.startsWith(id)) {
+                                    DropdownMenuItem(onClick = {
+                                        useState(it)
+                                        idExpended = false
+                                    }) {
+                                        Text(it.id)
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     OutlinedTextFieldWithError(
                         value = password,
