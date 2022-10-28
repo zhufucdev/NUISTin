@@ -32,11 +32,11 @@ Body:
 
 ```json
 {
-  "channel": -1,
+  "channel": "channel id",
   "username": "usually your phone number",
   "password": "your password",
   "pagesign": "secondauth",
-  "ifautologin": 0,
+  "ifautologin": "0",
   "usripadd": "your ip addr"
 }
 ```
