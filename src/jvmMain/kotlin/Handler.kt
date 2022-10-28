@@ -42,6 +42,20 @@ object Handler {
         }
     }
 
+    private val accounts by lazy {
+        buildSet<Account> {
+            accountsDir.listFiles()?.forEach {
+                kotlin.runCatching {
+                    if (!it.isHidden && it.extension == "json") {
+                        it.inputStream().use { s ->
+                            add(Json.decodeFromStream(s))
+                        }
+                    }
+                }
+            }
+        }.toMutableSet()
+    }
+
     val preferences: Preferences by lazy {
         if (!preferencesFile.exists()) {
             Preferences.default
@@ -54,6 +68,7 @@ object Handler {
         if (!accountsDir.exists()) {
             accountsDir.mkdirs()
         }
+        accounts.add(account)
 
         val file = File(accountsDir, "${account.id}.json")
         if (!file.exists()) {
@@ -115,6 +130,10 @@ object Handler {
 
         return LoginResult.SUCCESS
     }
+
+    fun list() = accounts.toList()
+
+    fun account(id: String) = accounts.firstOrNull { it.id == id }
 
     fun close() {
         preferences.let { p ->

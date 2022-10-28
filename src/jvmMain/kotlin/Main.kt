@@ -78,6 +78,16 @@ fun App() {
         }
     }
 
+    Handler.account(Handler.preferences.recentAccount)
+        ?.let {
+            if (it.autostart) {
+                id = it.id
+                password = it.password
+                carrier = it.carrier
+                loginHandler()
+            }
+        }
+
     MaterialTheme {
         Scaffold(
             scaffoldState = scaffoldState,
