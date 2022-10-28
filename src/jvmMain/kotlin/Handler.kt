@@ -87,19 +87,19 @@ object Handler {
         try {
             val res = ktor.get("http://10.255.255.34/api/v1/ip")
             if (!res.status.isSuccess()) {
-                return LoginResult.IP_FAILURE
+                return ResultType.IP_FAILURE.bundle()
             }
 
             val ip = res.body<IpQueryResponse>()
             if (ip.code != 200) {
-                return LoginResult.IP_FAILURE
+                return ResultType.IP_FAILURE.bundle()
             }
             addr = ip.data!!
         } catch (e: HttpRequestTimeoutException) {
-            return LoginResult.TIMEOUT
+            return ResultType.TIMEOUT.bundle()
         } catch (e: Exception) {
             e.printStackTrace()
-            return LoginResult.EXCEPTION
+            return ResultType.EXCEPTION.bundle(e)
         }
 
         try {
@@ -117,20 +117,20 @@ object Handler {
                 )
             }
             if (!res.status.isSuccess()) {
-                return LoginResult.LOGIN_FAILURE
+                return ResultType.LOGIN_FAILURE.bundle()
             }
             val body = Json.decodeFromString<JsonObject>(res.bodyAsText())
             if (body["code"]!!.jsonPrimitive.int != 200) {
-                return LoginResult.LOGIN_FAILURE
+                return ResultType.LOGIN_FAILURE.bundle()
             }
         } catch (e: HttpRequestTimeoutException) {
-            return LoginResult.TIMEOUT
+            return ResultType.TIMEOUT.bundle()
         } catch (e: Exception) {
             e.printStackTrace()
-            return LoginResult.EXCEPTION
+            return ResultType.EXCEPTION.bundle(e)
         }
 
-        return LoginResult.SUCCESS
+        return ResultType.SUCCESS.bundle()
     }
 
     fun list() = accounts.toList()
@@ -139,6 +139,10 @@ object Handler {
 
     fun close() {
         preferences.let { p ->
+            if (!preferencesFile.exists()) {
+                dataDir.mkdirs()
+                preferencesFile.createNewFile()
+            }
             preferencesFile.outputStream().use {
                 Json.encodeToStream(p, it)
             }
@@ -159,10 +163,14 @@ data class LoginRequest(
     val ifautologin: String = "0"
 )
 
-enum class LoginResult {
+data class LoginResult(val type: ResultType, val exception: Exception? = null)
+
+enum class ResultType {
     IP_FAILURE,
     LOGIN_FAILURE,
     TIMEOUT,
     SUCCESS,
     EXCEPTION
 }
+
+fun ResultType.bundle(e: Exception? = null) = LoginResult(this, e)

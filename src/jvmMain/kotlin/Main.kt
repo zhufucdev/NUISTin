@@ -24,6 +24,7 @@ import kotlinx.coroutines.*
 import org.apache.commons.lang3.SystemUtils
 import java.awt.Dimension
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 @Preview
 fun App(callback: ApplicationCallback) {
@@ -42,6 +43,7 @@ fun App(callback: ApplicationCallback) {
     var working by remember { mutableStateOf(false) }
     val scaffoldState = rememberScaffoldState()
     var autoLoginExecuted by remember { mutableStateOf(false) }
+    var exception by remember { mutableStateOf<Exception?>(null) }
 
     var darkMode by remember { mutableStateOf(callback.getDarkModeEnabled()) }
 
@@ -75,17 +77,24 @@ fun App(callback: ApplicationCallback) {
             scope.launch {
                 val result = Handler.login(account)
                 working = false
-                scaffoldState.snackbarHostState.showSnackbar(
-                    when (result) {
-                        LoginResult.IP_FAILURE -> "无法获取IP地址"
-                        LoginResult.LOGIN_FAILURE -> "登录服务器拒绝了我们的请求"
-                        LoginResult.TIMEOUT -> "请求超时"
-                        LoginResult.SUCCESS -> "成功登录"
-                        LoginResult.EXCEPTION -> "内部错误"
+                launch {
+                    scaffoldState.snackbarHostState.showSnackbar(
+                        when (result.type) {
+                            ResultType.IP_FAILURE -> "无法获取IP地址"
+                            ResultType.LOGIN_FAILURE -> "登录服务器拒绝了我们的请求"
+                            ResultType.TIMEOUT -> "请求超时"
+                            ResultType.SUCCESS -> "成功登录"
+                            ResultType.EXCEPTION -> "内部错误"
+                        },
+                        actionLabel = result.exception?.let { "详细信息" }
+                    ).let {
+                        if (it == SnackbarResult.ActionPerformed) {
+                            exception = result.exception
+                        }
                     }
-                )
+                }
 
-                if (result == LoginResult.SUCCESS) {
+                if (result.type == ResultType.SUCCESS) {
                     Handler.store(account)
                     Handler.preferences.recentAccount = account.id
                 }
@@ -260,6 +269,24 @@ fun App(callback: ApplicationCallback) {
                     }
                 }
             }
+
+            run {
+                val ex = exception
+                if (ex != null) {
+                    AlertDialog(
+                        onDismissRequest = { exception = null },
+                        title = { Text("内部错误") },
+                        text = { Text(ex.stackTraceToString()) },
+                        confirmButton = {
+                            Button(onClick = {
+                                exception = null
+                            }) {
+                                Text("关闭")
+                            }
+                        }
+                    )
+                }
+            }
         }
     }
 }
@@ -337,9 +364,9 @@ fun main() = application {
     Window(
         onCloseRequest = ::handleClose,
         title = "NUISTin",
-        state = WindowState(size = DpSize(400.dp, 380.dp))
+        state = WindowState(size = DpSize(500.dp, 400.dp))
     ) {
-        window.minimumSize = Dimension(400, 380)
+        window.minimumSize = Dimension(400, 400)
         App(callback)
     }
 }
