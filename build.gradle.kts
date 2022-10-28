@@ -49,7 +49,6 @@ compose.desktop {
     application {
         mainClass = "MainKt"
         nativeDistributions {
-            modules("jdk.charsets")
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
 
             packageName = "NUISTin"
@@ -60,12 +59,15 @@ compose.desktop {
 
             macOS {
                 iconFile.set(project.file("icon/macos.icns"))
+                modules("jdk.charsets")
             }
             windows {
                 iconFile.set(project.file("icon/windows.ico"))
+                includeAllModules = true
             }
             linux {
                 iconFile.set(project.file("icon/linux.svg"))
+                modules("jdk.charsets")
             }
         }
     }
