@@ -1,5 +1,6 @@
 name: Package for all platforms
 run-name: ${{ github.actor }} is packing this multiplatform project 🚀
+on: [push]
 jobs:
   for-windows:
     runs-on: windows-latest
