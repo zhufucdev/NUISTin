@@ -1,0 +1,66 @@
+name: Package for all platforms
+run-name: ${{ github.actor }} is packing this multiplatform project 🚀
+jobs:
+  for-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+          architecture: x64
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        with:
+          arguments: packageDistributionForCurrentOS
+      - name: Upload Windows MSI
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-x64
+          path: build/compose/binaries/main/msi
+  for-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+          architecture: aarch64
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        with:
+          arguments: packageDistributionForCurrentOS
+      - name: Upload macOS DMG
+        uses: actions/upload-artifact@v3
+        with:
+          name: darwin-aarch64
+          path: build/compose/binaries/main/dmg
+  for-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+          architecture: x64
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        with:
+          arguments: packageDistributionForCurrentOS
+      - name: Upload Debian DEB
+        uses: actions/upload-artifact@v3
+        with:
+          name: debian-x64
+          path: build/compose/binaries/main/dev
