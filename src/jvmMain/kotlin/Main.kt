@@ -334,6 +334,8 @@ fun OutlinedTextFieldWithError(
 @OptIn(DelicateCoroutinesApi::class)
 fun main() = application {
     var colorModeListener by remember { mutableStateOf<((Boolean) -> Unit)?>(null) }
+    var visibilityListener by remember { mutableStateOf<((Boolean) -> Unit)?>(null) }
+
     val callback = object : ApplicationCallback {
         override fun setInterfaceStyleChangeListener(l: (dark: Boolean) -> Unit) {
             colorModeListener = l
@@ -345,40 +347,47 @@ fun main() = application {
     var visible by remember { mutableStateOf(true) }
     val trayState = rememberTrayState()
 
-    if (!visible) {
-        var activeInterval by remember { mutableStateOf(Handler.preferences.intervalIndex) }
-        Tray(
-            state = trayState,
-            icon = painterResource("tray.svg"),
-            menu = {
-                designedIntervals.forEachIndexed { index, interval ->
-                    CheckboxItem(
-                        text = "${interval}分钟",
-                        checked = activeInterval == index,
-                        onCheckedChange = { checked ->
-                            if (checked && activeInterval != index) {
-                                activeInterval = index
-                                updateInterval(interval, trayState)
-                            }
+    var activeInterval by remember { mutableStateOf(Handler.preferences.intervalIndex) }
+    Tray(
+        state = trayState,
+        icon = painterResource("tray.svg"),
+        menu = {
+            designedIntervals.forEachIndexed { index, interval ->
+                CheckboxItem(
+                    text = "${interval}分钟",
+                    checked = activeInterval == index,
+                    onCheckedChange = { checked ->
+                        if (checked && activeInterval != index) {
+                            activeInterval = index
+                            updateInterval(interval, trayState)
                         }
-                    )
-                }
-
-                Separator()
-
-                Item(
-                    text = "退出",
-                    onClick = {
-                        handleClose()
                     }
                 )
             }
-        )
-    }
+
+            Separator()
+
+            Item(
+                text = "显示主界面",
+                onClick = {
+                    visible = true
+                    visibilityListener?.invoke(true)
+                }
+            )
+
+            Item(
+                text = "退出",
+                onClick = {
+                    handleClose()
+                }
+            )
+        }
+    )
 
     Window(
         onCloseRequest = {
             visible = false
+            visibilityListener?.invoke(false)
             if (!Handler.preferences.notified) {
                 Handler.preferences.notified = true
                 val notification =
@@ -388,21 +397,29 @@ fun main() = application {
         },
         title = "NUISTin",
         state = WindowState(size = DpSize(500.dp, 400.dp)),
-        visible = visible
+        visible = visible,
     ) {
         window.minimumSize = Dimension(400, 400)
         App(callback)
     }
 
     LaunchedEffect(Unit) {
-        GlobalScope.launch { // detect changes in dark mode settings
-            var enabled = currentOS.isDarkModeEnabled()
-            while (isActive) {
-                if (currentOS.isDarkModeEnabled() != enabled) {
-                    enabled = !enabled
-                    colorModeListener?.invoke(enabled)
+        fun newJob() =
+            GlobalScope.launch { // detect changes in dark mode settings
+                var enabled = currentOS.isDarkModeEnabled()
+                while (isActive) {
+                    if (currentOS.isDarkModeEnabled() != enabled) {
+                        enabled = !enabled
+                        colorModeListener?.invoke(enabled)
+                    }
+                    delay(500L)
                 }
-                delay(500L)
+            }
+        var currentJob = newJob()
+        visibilityListener = { visible ->
+            if (currentJob.isActive) currentJob.cancel()
+            if (visible) {
+                currentJob = newJob()
             }
         }
         updateInterval(designedIntervals[Handler.preferences.intervalIndex], trayState)
