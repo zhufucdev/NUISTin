@@ -3,8 +3,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -135,6 +134,9 @@ fun App() {
                             label = {
                                 Text("ID")
                             },
+                            leadingIcon = {
+                                Icon(Icons.Default.AccountCircle, "account id icon")
+                            },
                             errorMessage = idInputError,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -168,6 +170,9 @@ fun App() {
                         label = {
                             Text("密码")
                         },
+                        leadingIcon = {
+                            Icon(Icons.Default.Lock, "account password icon")
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         visualTransformation = PasswordVisualTransformation()
@@ -178,6 +183,9 @@ fun App() {
                             value = carrier.uiName,
                             enabled = !working,
                             label = { Text("运营商") },
+                            leadingIcon = {
+                                Icon(Icons.Default.Phone, "carrier icon")
+                            },
                             onValueChange = {},
                             readOnly = true,
                             trailingIcon = {
@@ -261,6 +269,7 @@ fun OutlinedTextFieldWithError(
     enabled: Boolean = true,
     errorMessage: String,
     label: @Composable () -> Unit,
+    leadingIcon: @Composable () -> Unit,
     onValueChange: (String) -> Unit,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
@@ -272,6 +281,7 @@ fun OutlinedTextFieldWithError(
             enabled = enabled,
             onValueChange = onValueChange,
             label = label,
+            leadingIcon = leadingIcon,
             isError = errorMessage.isNotEmpty(),
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = keyboardOptions,
