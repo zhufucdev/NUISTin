@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with Vectornator (http://vectornator.io/) -->
+<svg height="100%" stroke-miterlimit="10" style="fill-rule:nonzero;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;" version="1.1" viewBox="0 0 1024 1024" width="100%" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:vectornator="http://vectornator.io" xmlns:xlink="http://www.w3.org/1999/xlink">
+<defs/>
+<g id="图层-1" vectornator:layerName="图层 1">
+<path d="M116.869 570.261C116.869 368.368 280.536 204.701 482.429 204.701C684.322 204.701 847.989 368.368 847.989 570.261C847.989 772.155 684.322 935.822 482.429 935.822C280.536 935.822 116.869 772.155 116.869 570.261Z" fill="none" opacity="1" stroke="#ffffff" stroke-linecap="butt" stroke-linejoin="round" stroke-width="63"/>
+<clipPath id="ClipPath">
+<path d="M41.0049 46.5862L41.0049 982.595L1008.32 982.595L1008.32 46.5862L41.0049 46.5862ZM483.101 205.624C576.592 205.624 661.831 240.756 726.469 298.489L441.027 298.489L441.027 777.05L785.131 777.05C719.31 873.422 608.619 936.721 483.101 936.721C281.208 936.721 117.553 773.066 117.553 571.172C117.553 369.279 281.208 205.624 483.101 205.624Z"/>
+</clipPath>
+<g clip-path="url(#ClipPath)">
+<path d="M532.368 226.287C595.895 148.446 864.43-13.0941 860.825 144.624C860.42 162.366 857.798 181.2 853.243 200.743C813.408 371.673 625.749 596.768 480.6 618.547" fill="none" opacity="1" stroke="#ffffff" stroke-linecap="butt" stroke-linejoin="round" stroke-width="63"/>
+<path d="M569.087 437.751L470.503 627.437L686.598 664.896" fill="none" opacity="1" stroke="#ffffff" stroke-linecap="butt" stroke-linejoin="round" stroke-width="60"/>
+</g>
+</g>
+</svg>

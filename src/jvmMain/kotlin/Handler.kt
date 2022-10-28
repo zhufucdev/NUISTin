@@ -11,10 +11,8 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
-import org.apache.commons.lang3.SystemUtils
 import java.io.File
 import java.nio.charset.Charset
-import java.nio.file.Paths
 
 @OptIn(ExperimentalSerializationApi::class)
 object Handler {
@@ -48,7 +46,14 @@ object Handler {
         if (!preferencesFile.exists()) {
             Preferences.default
         } else {
-            preferencesFile.inputStream().use { Json.decodeFromStream(it) }
+            preferencesFile.inputStream().use {
+                try {
+                    Json.decodeFromStream(it)
+                } catch (e: Exception) {
+                    preferencesFile.delete()
+                    Preferences.default
+                }
+            }
         }
     }
 

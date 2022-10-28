@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -16,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import kotlinx.coroutines.*
 import java.awt.Dimension
+import java.util.Timer
+import kotlin.concurrent.timer
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -72,13 +75,7 @@ fun App(callback: ApplicationCallback) {
                 working = false
                 launch {
                     scaffoldState.snackbarHostState.showSnackbar(
-                        when (result.type) {
-                            ResultType.IP_FAILURE -> "无法获取IP地址"
-                            ResultType.LOGIN_FAILURE -> "登录服务器拒绝了我们的请求"
-                            ResultType.TIMEOUT -> "请求超时"
-                            ResultType.SUCCESS -> "成功登录"
-                            ResultType.EXCEPTION -> "内部错误"
-                        },
+                        result.type.uiName,
                         actionLabel = result.exception?.let { "详细信息" }
                     ).let {
                         if (it == SnackbarResult.ActionPerformed) {
@@ -333,19 +330,10 @@ fun OutlinedTextFieldWithError(
     }
 }
 
+
 @OptIn(DelicateCoroutinesApi::class)
 fun main() = application {
-    var colorModeListener: ((Boolean) -> Unit)? = null
-    GlobalScope.launch { // detect changes in dark mode settings
-        var enabled = currentOS.isDarkModeEnabled()
-        while (isActive) {
-            if (currentOS.isDarkModeEnabled() != enabled) {
-                enabled = !enabled
-                colorModeListener?.invoke(enabled)
-            }
-            delay(500L)
-        }
-    }
+    var colorModeListener by remember { mutableStateOf<((Boolean) -> Unit)?>(null) }
     val callback = object : ApplicationCallback {
         override fun setInterfaceStyleChangeListener(l: (dark: Boolean) -> Unit) {
             colorModeListener = l
@@ -354,13 +342,70 @@ fun main() = application {
         override fun getDarkModeEnabled() = currentOS.isDarkModeEnabled()
     }
 
+    var visible by remember { mutableStateOf(true) }
+    val trayState = rememberTrayState()
+
+    if (!visible) {
+        var activeInterval by remember { mutableStateOf(Handler.preferences.intervalIndex) }
+        Tray(
+            state = trayState,
+            icon = painterResource("tray.svg"),
+            menu = {
+                designedIntervals.forEachIndexed { index, interval ->
+                    CheckboxItem(
+                        text = "${interval}分钟",
+                        checked = activeInterval == index,
+                        onCheckedChange = { checked ->
+                            if (checked && activeInterval != index) {
+                                activeInterval = index
+                                updateInterval(interval, trayState)
+                            }
+                        }
+                    )
+                }
+
+                Separator()
+
+                Item(
+                    text = "退出",
+                    onClick = {
+                        handleClose()
+                    }
+                )
+            }
+        )
+    }
+
     Window(
-        onCloseRequest = ::handleClose,
+        onCloseRequest = {
+            visible = false
+            if (!Handler.preferences.notified) {
+                Handler.preferences.notified = true
+                val notification =
+                    Notification("NUISTin正在后台运行", "点击图标调整以设置", Notification.Type.Info)
+                trayState.sendNotification(notification)
+            }
+        },
         title = "NUISTin",
-        state = WindowState(size = DpSize(500.dp, 400.dp))
+        state = WindowState(size = DpSize(500.dp, 400.dp)),
+        visible = visible
     ) {
         window.minimumSize = Dimension(400, 400)
         App(callback)
+    }
+
+    LaunchedEffect(Unit) {
+        GlobalScope.launch { // detect changes in dark mode settings
+            var enabled = currentOS.isDarkModeEnabled()
+            while (isActive) {
+                if (currentOS.isDarkModeEnabled() != enabled) {
+                    enabled = !enabled
+                    colorModeListener?.invoke(enabled)
+                }
+                delay(500L)
+            }
+        }
+        updateInterval(designedIntervals[Handler.preferences.intervalIndex], trayState)
     }
 }
 
@@ -375,6 +420,37 @@ val Carrier.uiName
         Carrier.TELECOM -> "电信"
         Carrier.UNICOM -> "联通"
     }
+
+val ResultType.uiName
+    get() = when (this) {
+        ResultType.IP_FAILURE -> "无法获取IP地址"
+        ResultType.LOGIN_FAILURE -> "登录服务器拒绝了我们的请求"
+        ResultType.TIMEOUT -> "请求超时"
+        ResultType.SUCCESS -> "成功登录"
+        ResultType.EXCEPTION -> "内部错误"
+    }
+
+val updateDaemon = CoroutineScope(Dispatchers.Default)
+
+val designedIntervals = listOf(5, 10, 20, 30)
+var timer: Timer? = null
+fun updateInterval(interval: Int, trayState: TrayState) {
+    timer?.cancel()
+    val delay = interval * 6000L
+    timer = timer(initialDelay = delay, period = delay) {
+        updateDaemon.launch {
+            Handler.account(Handler.preferences.recentAccount)
+                ?.let {
+                    val result = Handler.login(it)
+                    if (result.type != ResultType.SUCCESS) {
+                        val notification = Notification("登录失败", result.type.uiName, Notification.Type.Error)
+                        trayState.sendNotification(notification)
+                    }
+                }
+        }
+    }
+}
+
 
 interface ApplicationCallback {
     fun setInterfaceStyleChangeListener(l: (dark: Boolean) -> Unit)
