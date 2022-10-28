@@ -37,6 +37,7 @@ fun App() {
     var pwdInputError by remember { mutableStateOf("") }
     var working by remember { mutableStateOf(false) }
     val scaffoldState = rememberScaffoldState()
+    var autoLoginExecuted by remember { mutableStateOf(false) }
 
     fun currentAccount() = Account(id, password, carrier, remember, autologin)
 
@@ -78,15 +79,20 @@ fun App() {
         }
     }
 
-    Handler.account(Handler.preferences.recentAccount)
-        ?.let {
-            if (it.autostart) {
-                id = it.id
-                password = it.password
-                carrier = it.carrier
-                loginHandler()
+    if (!autoLoginExecuted) {
+        Handler.account(Handler.preferences.recentAccount)
+            ?.let {
+                if (it.autostart) {
+                    id = it.id
+                    password = it.password
+                    carrier = it.carrier
+                    autologin = true
+                    remember = true
+                    loginHandler()
+                }
             }
-        }
+        autoLoginExecuted = true
+    }
 
     MaterialTheme {
         Scaffold(
@@ -272,6 +278,7 @@ fun main() = application {
 fun ApplicationScope.handleClose() {
     Handler.close()
     exitApplication()
+
 }
 
 val Carrier.uiName
