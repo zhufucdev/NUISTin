@@ -51,8 +51,22 @@ compose.desktop {
         nativeDistributions {
             modules("jdk.charsets")
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+
             packageName = "NUISTin"
             packageVersion = "1.0.0"
+            description = "南信大校园网自动化登录"
+            copyright = "©2022 zhufucdev. All rights reserved."
+            vendor = "zhufucdev"
+
+            macOS {
+                iconFile.set(project.file("icon/macos.icns"))
+            }
+            windows {
+                iconFile.set(project.file("icon/windows.icon"))
+            }
+            linux {
+                iconFile.set(project.file("icon/linux.svg"))
+            }
         }
     }
 }

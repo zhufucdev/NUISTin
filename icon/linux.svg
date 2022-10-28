@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with Vectornator (http://vectornator.io/) -->
+<svg height="100%" stroke-miterlimit="10" style="fill-rule:nonzero;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;" version="1.1" viewBox="0 0 1024 1024" width="100%" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:vectornator="http://vectornator.io" xmlns:xlink="http://www.w3.org/1999/xlink">
+<defs>
+<linearGradient gradientTransform="matrix(1.09733 0 0 1.09733 -51.3671 -56.4153)" gradientUnits="userSpaceOnUse" id="LinearGradient" x1="491.254" x2="538.157" y1="977.337" y2="62.4044">
+<stop offset="0" stop-color="#2d2d2d"/>
+<stop offset="1" stop-color="#000000"/>
+</linearGradient>
+<radialGradient cx="489.392" cy="612.557" gradientTransform="matrix(0.884615 0 0 0.884615 56.5116 54.787)" gradientUnits="userSpaceOnUse" id="RadialGradient" r="520.545">
+<stop offset="0" stop-color="#194f99"/>
+<stop offset="1" stop-color="#4b92f2"/>
+</radialGradient>
+<filter color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse" height="690.117" id="Filter" width="690.117" x="121.381" y="233.214">
+<feDropShadow dx="-3.67321e-05" dy="10" flood-color="#000000" flood-opacity="0.379348" in="SourceGraphic" result="Shadow" stdDeviation="5"/>
+</filter>
+</defs>
+<g id="图层-1" vectornator:layerName="图层 1">
+<path d="M164.091 3.89119L859.95 3.89119C948.753 3.89119 1020.74 75.8795 1020.74 164.682L1020.74 860.541C1020.74 949.343 948.753 1021.33 859.95 1021.33L164.091 1021.33C75.2886 1021.33 3.30025 949.343 3.30025 860.541L3.30025 164.682C3.30025 75.8795 75.2886 3.89119 164.091 3.89119Z" fill="url(#LinearGradient)" fill-rule="nonzero" opacity="1" stroke="none"/>
+<path d="M131.381 568.272C131.381 383.225 281.392 233.214 466.439 233.214C651.487 233.214 801.498 383.225 801.498 568.272C801.498 753.32 651.487 903.331 466.439 903.331C281.392 903.331 131.381 753.32 131.381 568.272Z" fill="url(#RadialGradient)" fill-rule="nonzero" filter="url(#Filter)" stroke="none" vectornator:shadowAngle="1.5708" vectornator:shadowColor="#000000" vectornator:shadowOffset="10" vectornator:shadowOpacity="0.379348" vectornator:shadowRadius="10"/>
+<path d="M539.888 518.571L463.483 618.894L593.931 624.549" fill="none" opacity="1" stroke="#ffffff" stroke-linecap="butt" stroke-linejoin="round" stroke-width="33"/>
+<clipPath id="ClipPath">
+<path d="M61.8469 88.2918L61.8469 946.202L948.452 946.202L948.452 88.2918L61.8469 88.2918ZM467.056 234.06C552.746 234.06 630.872 266.261 690.117 319.176L428.492 319.176L428.492 757.807L743.885 757.807C683.556 846.138 582.1 904.155 467.056 904.155C282.008 904.155 132.008 754.155 132.008 569.107C132.008 384.06 282.008 234.06 467.056 234.06Z"/>
+</clipPath>
+<g clip-path="url(#ClipPath)">
+<path d="M512.211 252.999C570.438 181.653 816.567 33.5911 813.263 178.15C812.891 194.411 810.488 211.674 806.314 229.586C769.802 386.254 597.801 592.567 464.763 612.529" fill="none" opacity="1" stroke="#ffffff" stroke-linecap="butt" stroke-linejoin="round" stroke-width="32"/>
+</g>
+</g>
+</svg>
