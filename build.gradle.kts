@@ -62,7 +62,7 @@ compose.desktop {
                 iconFile.set(project.file("icon/macos.icns"))
             }
             windows {
-                iconFile.set(project.file("icon/windows.icon"))
+                iconFile.set(project.file("icon/windows.ico"))
             }
             linux {
                 iconFile.set(project.file("icon/linux.svg"))
