@@ -15,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
@@ -128,7 +130,8 @@ fun App() {
                             Text("密码")
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        visualTransformation = PasswordVisualTransformation()
                     )
 
                     Box {
@@ -139,12 +142,10 @@ fun App() {
                             onValueChange = {},
                             readOnly = true,
                             trailingIcon = {
-                                OutlinedButton(
+                                IconButton(
                                     onClick = {
                                         carrierExpended = true
                                     },
-                                    shape = CircleShape,
-                                    border = BorderStroke(0.dp, Color.Transparent),
                                     modifier = Modifier.size(50.dp)
                                 ) {
                                     Icon(
@@ -223,6 +224,7 @@ fun OutlinedTextFieldWithError(
     label: @Composable () -> Unit,
     onValueChange: (String) -> Unit,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
     modifier: Modifier = Modifier
 ) {
     Column(modifier) {
@@ -233,7 +235,8 @@ fun OutlinedTextFieldWithError(
             label = label,
             isError = errorMessage.isNotEmpty(),
             modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = keyboardOptions
+            keyboardOptions = keyboardOptions,
+            visualTransformation = visualTransformation
         )
         if (errorMessage.isNotEmpty()) { // helper text
             Text(
