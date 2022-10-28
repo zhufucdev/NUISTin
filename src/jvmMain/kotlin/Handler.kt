@@ -23,15 +23,12 @@ object Handler {
     private val preferencesFile by lazy { File(dataDir, "preferences.json") }
 
     private val dataDir by lazy {
-        if (SystemUtils.IS_OS_WINDOWS) {
-            Paths.get(System.getenv("APPDATA"), "NUISTin").toFile()
-        } else if (SystemUtils.IS_OS_MAC_OSX) {
-            Paths.get(SystemUtils.USER_HOME, "Library", "Application Support", "NUISTin")
-                .toFile()
-        } else if (SystemUtils.IS_OS_LINUX) {
-            File(SystemUtils.getUserHome(), ".nuistin")
-        } else {
-            File(SystemUtils.getUserHome(), "nuistin")
+        when {
+            SystemUtils.IS_OS_WINDOWS -> Paths.get(System.getenv("APPDATA"), "NUISTin").toFile()
+            SystemUtils.IS_OS_MAC_OSX ->
+                Paths.get(SystemUtils.USER_HOME, "Library", "Application Support", "NUISTin").toFile()
+            SystemUtils.IS_OS_LINUX -> File(SystemUtils.getUserHome(), ".nuistin")
+            else -> File(SystemUtils.getUserHome(), "nuistin")
         }
     }
 

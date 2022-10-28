@@ -17,12 +17,16 @@ import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
-import kotlinx.coroutines.launch
+import com.github.tkuenneth.nativeparameterstoreaccess.Dconf
+import com.github.tkuenneth.nativeparameterstoreaccess.MacOSDefaults
+import com.github.tkuenneth.nativeparameterstoreaccess.WindowsRegistry
+import kotlinx.coroutines.*
+import org.apache.commons.lang3.SystemUtils
 import java.awt.Dimension
 
 @Composable
 @Preview
-fun App() {
+fun App(callback: ApplicationCallback) {
     val scope = rememberCoroutineScope()
 
     var id by remember { mutableStateOf("") }
@@ -38,6 +42,8 @@ fun App() {
     var working by remember { mutableStateOf(false) }
     val scaffoldState = rememberScaffoldState()
     var autoLoginExecuted by remember { mutableStateOf(false) }
+
+    var darkMode by remember { mutableStateOf(callback.getDarkModeEnabled()) }
 
     fun currentAccount() = Account(id, password, carrier, remember, autologin && remember)
 
@@ -98,7 +104,11 @@ fun App() {
         autoLoginExecuted = true
     }
 
-    MaterialTheme {
+    callback.setInterfaceStyleChangeListener {
+        darkMode = it
+    }
+
+    MaterialTheme(if (darkMode) darkColors() else lightColors()) {
         Scaffold(
             scaffoldState = scaffoldState,
             floatingActionButton = {
@@ -114,11 +124,11 @@ fun App() {
                         Icon(Icons.Default.Send, "login")
                     }
                 }
-            }
+            },
         ) {
             Box {
                 Column(
-                    modifier = Modifier.padding(12.dp)
+                    modifier = Modifier.padding(24.dp)
                         .fillMaxWidth()
                         .fillMaxHeight()
                 ) {
@@ -159,6 +169,8 @@ fun App() {
                         }
                     }
 
+                    Spacer(Modifier.height(12.dp))
+
                     OutlinedTextFieldWithError(
                         value = password,
                         enabled = !working,
@@ -177,6 +189,8 @@ fun App() {
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         visualTransformation = PasswordVisualTransformation()
                     )
+
+                    Spacer(Modifier.height(12.dp))
 
                     Box {
                         OutlinedTextField(
@@ -220,7 +234,7 @@ fun App() {
                     }
                 }
 
-                Box(modifier = Modifier.align(Alignment.BottomStart)) {
+                Box(modifier = Modifier.align(Alignment.BottomStart).padding(12.dp)) {
                     Column {
                         LabelledCheckbox(
                             checked = remember,
@@ -299,21 +313,40 @@ fun OutlinedTextFieldWithError(
     }
 }
 
+@OptIn(DelicateCoroutinesApi::class)
 fun main() = application {
+    var colorModeListener: ((Boolean) -> Unit)? = null
+    GlobalScope.launch { // detect changes in dark mode settings
+        var enabled = isDarkModeEnabled()
+        while (isActive) {
+            if (isDarkModeEnabled() != enabled) {
+                enabled = !enabled
+                colorModeListener?.invoke(enabled)
+            }
+            delay(500L)
+        }
+    }
+    val callback = object : ApplicationCallback {
+        override fun setInterfaceStyleChangeListener(l: (dark: Boolean) -> Unit) {
+            colorModeListener = l
+        }
+
+        override fun getDarkModeEnabled() = isDarkModeEnabled()
+    }
+
     Window(
         onCloseRequest = ::handleClose,
         title = "NUISTin",
-        state = WindowState(size = DpSize(400.dp, 370.dp))
+        state = WindowState(size = DpSize(400.dp, 380.dp))
     ) {
-        window.minimumSize = Dimension(400, 370)
-        App()
+        window.minimumSize = Dimension(400, 380)
+        App(callback)
     }
 }
 
 fun ApplicationScope.handleClose() {
     Handler.close()
     exitApplication()
-
 }
 
 val Carrier.uiName
@@ -322,3 +355,26 @@ val Carrier.uiName
         Carrier.TELECOM -> "电信"
         Carrier.UNICOM -> "联通"
     }
+
+fun isDarkModeEnabled(): Boolean = when {
+    SystemUtils.IS_OS_MAC_OSX -> MacOSDefaults.getDefaultsEntry("AppleInterfaceStyle") == "Dark"
+
+    SystemUtils.IS_OS_WINDOWS ->
+        WindowsRegistry.getWindowsRegistryEntry(
+            "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+            "AppsUseLightTheme"
+        ) == 0x0
+
+    Dconf.HAS_DCONF ->
+        Dconf.getDconfEntry("/org/gnome/desktop/interface/gtk-theme").lowercase()
+            .contains("dark")
+
+    else -> false
+}
+
+
+interface ApplicationCallback {
+    fun setInterfaceStyleChangeListener(l: (dark: Boolean) -> Unit)
+
+    fun getDarkModeEnabled(): Boolean
+}

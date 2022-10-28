@@ -38,6 +38,7 @@ kotlin {
                 implementation(compose.desktop.currentOs)
                 implementation("io.ktor:ktor-client-cio:$ktorVersion")
                 implementation("org.apache.commons:commons-lang3:3.12.0")
+                implementation("com.github.tkuenneth:nativeparameterstoreaccess:0.1.2")
             }
         }
         val jvmTest by getting
