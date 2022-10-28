@@ -53,7 +53,7 @@ compose.desktop {
 
             packageName = "NUISTin"
             packageVersion = "1.0.0"
-            description = "南信大校园网自动化登录"
+            description = "NUIST auto login"
             copyright = "©2022 zhufucdev. All rights reserved."
             vendor = "zhufucdev"
 
