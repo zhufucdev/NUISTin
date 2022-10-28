@@ -33,7 +33,7 @@ fun App() {
     var carrier by remember { mutableStateOf(Carrier.MOBILE) }
 
     var carrierExpended by remember { mutableStateOf(false) }
-    var idExpended by remember { mutableStateOf(true) }
+    var idExpended by remember { mutableStateOf(false) }
     var idInputError by remember { mutableStateOf("") }
     var pwdInputError by remember { mutableStateOf("") }
     var working by remember { mutableStateOf(false) }
