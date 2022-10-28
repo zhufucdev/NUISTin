@@ -39,7 +39,7 @@ fun App() {
     val scaffoldState = rememberScaffoldState()
     var autoLoginExecuted by remember { mutableStateOf(false) }
 
-    fun currentAccount() = Account(id, password, carrier, remember, autologin)
+    fun currentAccount() = Account(id, password, carrier, remember, autologin && remember)
 
     fun validateInput(): Boolean {
         var valid = true
@@ -202,7 +202,7 @@ fun App() {
 
                         LabelledCheckbox(
                             checked = autologin,
-                            enabled = !working,
+                            enabled = !working && remember,
                             content = {
                                 Text("自动登录")
                             },
