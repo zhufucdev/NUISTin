@@ -70,3 +70,13 @@ Response:
 其他都是些bullshit
 
 校园网不支持IPv6和p2p，非常摩登
+
+## 编译&运行
+
+使用Jetbrains Intellij IDEA管理和维护这个项目
+
+使用Gradle来编译
+
+```shell
+./gradlew run
+```
