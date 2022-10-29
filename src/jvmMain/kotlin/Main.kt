@@ -21,6 +21,7 @@ import org.apache.commons.lang3.SystemUtils
 import java.awt.Dimension
 import java.awt.event.KeyEvent
 import java.util.Timer
+import kotlin.concurrent.fixedRateTimer
 import kotlin.concurrent.timer
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -333,8 +334,6 @@ fun OutlinedTextFieldWithError(
     }
 }
 
-
-@OptIn(DelicateCoroutinesApi::class)
 fun main() = application {
     var colorModeListener by remember { mutableStateOf<((Boolean) -> Unit)?>(null) }
     var visibilityListener by remember { mutableStateOf<((Boolean) -> Unit)?>(null) }
@@ -422,23 +421,41 @@ fun main() = application {
     }
 
     LaunchedEffect(Unit) {
-        fun newJob() =
-            GlobalScope.launch { // detect changes in dark mode settings
-                var enabled = currentOS.isDarkModeEnabled()
-                while (isActive && visible) {
-                    if (currentOS.isDarkModeEnabled() != enabled) {
-                        enabled = !enabled
-                        colorModeListener?.invoke(enabled)
+        val idleMsg = "从休眠中恢复连接"
+        fun newJobWithoutUI(): Timer {
+            val detector = IdleDetect(10000L)
+            return timer("idle detection", period = 10000L) {
+                if (detector.hasIdled()) {
+                    updateDaemon.launch {
+                        loginRecent(trayState, retry = 10, idleMsg)
                     }
-                    delay(500L)
                 }
             }
+        }
+
+        fun newJob(): Timer {
+            var enabled = currentOS.isDarkModeEnabled()
+            val detector = IdleDetect(500L)
+            return fixedRateTimer("ui mode detection", period = 500L) { // detect changes in dark mode settings and idle
+                if (currentOS.isDarkModeEnabled() != enabled) {
+                    enabled = !enabled
+                    colorModeListener?.invoke(enabled)
+                }
+                if (detector.hasIdled()) {
+                    updateDaemon.launch {
+                        loginRecent(trayState, retry = 10, idleMsg)
+                    }
+                }
+            }
+        }
 
         var currentJob = newJob()
         visibilityListener = { visible ->
-            if (currentJob.isActive) currentJob.cancel()
-            if (visible) {
-                currentJob = newJob()
+            currentJob.cancel()
+            currentJob = if (visible) {
+                newJob()
+            } else {
+                newJobWithoutUI()
             }
         }
         updateInterval(designedIntervals[Handler.preferences.intervalIndex], trayState)
@@ -447,6 +464,7 @@ fun main() = application {
 
 fun ApplicationScope.handleClose() {
     Handler.close()
+    updateDaemon.cancel()
     exitApplication()
 }
 
@@ -475,16 +493,29 @@ fun updateInterval(interval: Int, trayState: TrayState) {
     val delay = interval * 60000L
     timer = timer(initialDelay = delay, period = delay) {
         updateDaemon.launch {
-            Handler.account(Handler.preferences.recentAccount)
-                ?.let {
-                    val result = Handler.login(it)
-                    if (result.type != ResultType.SUCCESS) {
-                        val notification = Notification("登录失败", result.type.uiName, Notification.Type.Error)
-                        trayState.sendNotification(notification)
-                    }
-                }
+            loginRecent(trayState)
         }
     }
+}
+
+suspend fun loginRecent(tray: TrayState, retry: Int = 0, successMsg: String? = null) {
+    Handler.account(Handler.preferences.recentAccount)
+        ?.let {
+            var result = Handler.login(it)
+            var trial = 0
+            while (trial < retry && result.type != ResultType.SUCCESS) {
+                result = Handler.login(it)
+                trial++
+                delay(1000L) // don't hurry
+            }
+            if (result.type != ResultType.SUCCESS) {
+                val notification = Notification("登录失败", result.type.uiName, Notification.Type.Warning)
+                tray.sendNotification(notification)
+            } else if (!successMsg.isNullOrEmpty()) {
+                val notification = Notification("登录成功", successMsg, Notification.Type.Info)
+                tray.sendNotification(notification)
+            }
+        }
 }
 
 
