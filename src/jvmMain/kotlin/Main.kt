@@ -362,6 +362,7 @@ fun main() = application {
                     onCheckedChange = { checked ->
                         if (checked && activeInterval != index) {
                             activeInterval = index
+                            Handler.preferences.intervalIndex = index
                             updateInterval(interval, trayState)
                         }
                     }
