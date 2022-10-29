@@ -347,6 +347,7 @@ fun main() = application {
     }
 
     var visible by remember { mutableStateOf(true) }
+    var onTop by remember { mutableStateOf(false) }
     val trayState = rememberTrayState()
 
     var activeInterval by remember { mutableStateOf(Handler.preferences.intervalIndex) }
@@ -374,6 +375,8 @@ fun main() = application {
                     text = "显示主界面",
                     onClick = {
                         visible = true
+                        onTop = true
+                        onTop = false
                         visibilityListener?.invoke(true)
                     }
                 )
@@ -401,6 +404,7 @@ fun main() = application {
         title = "NUISTin",
         state = WindowState(size = DpSize(500.dp, 400.dp)),
         visible = visible,
+        alwaysOnTop = onTop,
         onKeyEvent = { ev ->
             if (ev.key.nativeKeyCode == KeyEvent.VK_W) {
                 if (SystemUtils.IS_OS_MAC_OSX && ev.isMetaPressed) {
