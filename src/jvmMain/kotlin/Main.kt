@@ -431,6 +431,7 @@ fun main() = application {
             val detector = IdleDetect(10000L)
             return timer("idle detection", period = 10000L) {
                 if (detector.hasIdled()) {
+                    detector.reset()
                     updateDaemon.launch {
                         loginRecent(trayState, retry = 10, idleMsg)
                     }

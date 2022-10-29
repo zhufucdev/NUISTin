@@ -13,6 +13,10 @@ class IdleDetect(private val delay: Long) {
         return false
     }
 
+    fun reset() {
+        last = 0L
+    }
+
     companion object {
         const val ERROR = 500L
     }
