@@ -52,7 +52,7 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
 
             packageName = "NUISTin"
-            packageVersion = "1.2.3"
+            packageVersion = "1.2.4"
             description = "NUIST auto login"
             copyright = "©2022 zhufucdev. All rights reserved."
             vendor = "zhufucdev"

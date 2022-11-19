@@ -14,6 +14,9 @@ import kotlinx.serialization.json.*
 import java.io.File
 import java.nio.charset.Charset
 
+
+private const val ISP_SERVER = "http://10.255.255.46/"
+
 @OptIn(ExperimentalSerializationApi::class)
 object Handler {
     /* Data store */
@@ -81,7 +84,7 @@ object Handler {
         preferences.recentAccount = account.id
         val addr: String
         try {
-            val res = ktor.get("http://10.255.255.34/api/v1/ip")
+            val res = ktor.get("$ISP_SERVER/api/v1/ip")
             if (!res.status.isSuccess()) {
                 return ResultType.IP_FAILURE.bundle()
             }
@@ -100,7 +103,7 @@ object Handler {
 
         try {
             val res = ktor.post {
-                url("http://10.255.255.34/api/v1/login")
+                url("$ISP_SERVER/api/v1/login")
                 header("connection", "keep-alive")
                 contentType(ContentType.Application.Json.withCharset(Charset.forName("GBK")))
                 setBody(
