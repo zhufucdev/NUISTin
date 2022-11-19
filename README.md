@@ -54,7 +54,7 @@ rm ~/.nuistin
 
 ### 获取内网IP
 
-API: `http://10.255.255.46/api/v1/ip`
+API: `http://a.nuist.edu.cn/api/v1/ip`
 
 Response:
 
@@ -69,7 +69,7 @@ Response:
 
 ### 登录请求
 
-API: `http://10.255.255.46/api/v1/login`
+API: `http://a.nuist.edu.cn/api/v1/login`
 
 Body:
 

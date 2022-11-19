@@ -15,7 +15,7 @@ import java.io.File
 import java.nio.charset.Charset
 
 
-private const val ISP_SERVER = "http://10.255.255.46/"
+private const val ISP_SERVER = "http://a.nuist.edu.cn/"
 
 @OptIn(ExperimentalSerializationApi::class)
 object Handler {
